@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const apiKey = process.env.GEMINI_API_KEY || 'placeholder-key'
+const genAI = new GoogleGenerativeAI(apiKey)
 
 export const geminiModel = genAI.getGenerativeModel({ model: 'gemini-pro' })
 
