@@ -30,12 +30,22 @@ export default function LoginPage() {
         password,
       })
 
+      console.log('Login response:', { data, error })
+
       if (error) {
+        console.error('Login error:', error)
         setError(error.message)
       } else {
-        router.push('/dashboard')
+        console.log('Login successful, user:', data.user)
+        console.log('Session:', data.session)
+        
+        // Wait a moment for session to be set
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 100)
       }
     } catch (err) {
+      console.error('Login exception:', err)
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)

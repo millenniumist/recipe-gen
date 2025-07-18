@@ -31,10 +31,15 @@ export default function Home() {
 
   const handleSaveRecipe = async (recipe: GeneratedRecipe) => {
     try {
+      // Get the session token
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Current session for saving:', session)
+      
       const response = await fetch('/api/recipes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(session ? { 'Authorization': `Bearer ${session.access_token}` } : {})
         },
         body: JSON.stringify({
           title: recipe.title,
@@ -47,8 +52,13 @@ export default function Home() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to save recipe')
+        const errorData = await response.json()
+        console.error('Save recipe error:', errorData)
+        throw new Error(errorData.error || 'Failed to save recipe')
       }
+
+      const result = await response.json()
+      console.log('Recipe saved successfully:', result)
     } catch (error) {
       console.error('Error saving recipe:', error)
       throw error
@@ -72,10 +82,10 @@ export default function Home() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <ChefHat className="h-8 w-8 text-orange-600" />
             <h1 className="text-2xl font-bold text-gray-900">Recipe Generator</h1>
-          </div>
+          </Link>
           <nav className="flex items-center space-x-4">
             {user ? (
               <>

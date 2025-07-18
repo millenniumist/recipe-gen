@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { supabase } from '@/lib/supabase/client'
 import { Recipe } from '@/types'
 import RecipeCard from '@/components/recipe/recipe-card'
-import { ChefHat, Plus, LogOut } from 'lucide-react'
+import { ChefHat, Plus, LogOut, X, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,7 @@ export default function DashboardPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -34,11 +36,21 @@ export default function DashboardPage() {
 
   const fetchRecipes = async () => {
     try {
-      const response = await fetch('/api/recipes')
+      // Get the session token
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('Current session:', session)
+      
+      const response = await fetch('/api/recipes', {
+        headers: session ? {
+          'Authorization': `Bearer ${session.access_token}`
+        } : {}
+      })
       const data = await response.json()
       
       if (response.ok) {
         setRecipes(data.recipes)
+      } else {
+        console.error('API error:', data)
       }
     } catch (error) {
       console.error('Error fetching recipes:', error)
@@ -82,10 +94,10 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <ChefHat className="h-8 w-8 text-orange-600" />
             <h1 className="text-2xl font-bold text-gray-900">Recipe Generator</h1>
-          </div>
+          </Link>
           <nav className="flex items-center space-x-4">
             <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
             <Link href="/">
@@ -129,11 +141,76 @@ export default function DashboardPage() {
                 key={recipe.id}
                 recipe={recipe}
                 onDelete={handleDeleteRecipe}
+                onClick={(recipe) => setSelectedRecipe(recipe)}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* Recipe Detail Modal */}
+      {selectedRecipe && (
+        <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">{selectedRecipe.title}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6 pt-4">
+              <div className="flex items-center space-x-6 text-sm text-gray-600">
+                {selectedRecipe.cooking_time && (
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4" />
+                    <span>{selectedRecipe.cooking_time} minutes</span>
+                  </div>
+                )}
+                {selectedRecipe.servings && (
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-4 w-4" />
+                    <span>{selectedRecipe.servings} servings</span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
+                <ul className="space-y-2">
+                  {selectedRecipe.ingredients.map((ingredient, index) => (
+                    <li key={index} className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                      <span>{ingredient}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Instructions</h3>
+                <div className="prose max-w-none">
+                  <div className="whitespace-pre-line text-gray-700">
+                    {selectedRecipe.instructions}
+                  </div>
+                </div>
+              </div>
+
+              {selectedRecipe.dietary_tags && selectedRecipe.dietary_tags.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Dietary Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedRecipe.dietary_tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

@@ -8,4 +8,11 @@ if (typeof window !== 'undefined' && (supabaseUrl === 'https://placeholder.supab
   console.error('Missing Supabase environment variables')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+    flowType: 'pkce'
+  }
+})

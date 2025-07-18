@@ -7,15 +7,16 @@ import { Clock, Users, Trash2 } from 'lucide-react'
 interface RecipeCardProps {
   recipe: Recipe
   onDelete?: (id: string) => void
+  onClick?: (recipe: Recipe) => void
 }
 
-export default function RecipeCard({ recipe, onDelete }: RecipeCardProps) {
+export default function RecipeCard({ recipe, onDelete, onClick }: RecipeCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onClick?.(recipe)}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
