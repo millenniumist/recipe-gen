@@ -29,8 +29,10 @@ describe('RecipeForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/please enter at least one ingredient/i)).toBeInTheDocument()
-    }, { timeout: 3000 })
+      expect(screen.getByTestId('error-message')).toHaveTextContent(
+        /please enter at least one ingredient/i
+      )
+    })
   })
 
   test('submits form with correct data', async () => {

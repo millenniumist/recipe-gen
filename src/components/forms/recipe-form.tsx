@@ -73,7 +73,7 @@ export default function RecipeForm({ onRecipeGenerated }: RecipeFormProps) {
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
-            <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
+            <div data-testid="error-message" className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
               {error}
             </div>
           )}

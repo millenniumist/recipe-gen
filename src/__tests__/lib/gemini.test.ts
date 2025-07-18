@@ -1,7 +1,7 @@
 // Mock the function at the top level
 const mockGenerateRecipe = jest.fn()
 jest.mock('@/lib/gemini/client', () => ({
-  generateRecipe: mockGenerateRecipe,
+  generateRecipe: (...args: any[]) => mockGenerateRecipe(...args),
 }))
 
 import { generateRecipe } from '@/lib/gemini/client'
