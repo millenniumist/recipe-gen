@@ -4,12 +4,13 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChefHat, Utensils, Clock } from "lucide-react";
+import { ChefHat, Utensils, Clock, LogOut } from "lucide-react";
 import Link from "next/link";
 import { supabase } from '@/lib/supabase/client'
 import { GeneratedRecipe } from '@/types'
 import RecipeForm from '@/components/forms/recipe-form'
 import RecipeDisplay from '@/components/recipe/recipe-display'
+import { MobileMenu } from '@/components/ui/mobile-menu'
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
@@ -82,37 +83,74 @@ export default function Home() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <ChefHat className="h-8 w-8 text-orange-600" />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Recipe Generator</h1>
             </Link>
-            <nav className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-4">
               {user ? (
                 <>
-                  <span className="text-sm text-gray-600 text-center sm:text-left truncate max-w-[200px]">
+                  <span className="text-sm text-gray-600 truncate max-w-[200px]">
                     Welcome, {user.email}
                   </span>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <Link href="/dashboard" className="w-full sm:w-auto">
-                      <Button variant="outline" className="w-full sm:w-auto">My Recipes</Button>
-                    </Link>
-                    <Button variant="outline" onClick={() => supabase.auth.signOut()} className="w-full sm:w-auto">
-                      Sign Out
-                    </Button>
-                  </div>
+                  <Link href="/dashboard">
+                    <Button variant="outline">My Recipes</Button>
+                  </Link>
+                  <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                    Sign Out
+                  </Button>
                 </>
               ) : (
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <Link href="/login" className="w-full sm:w-auto">
-                    <Button variant="outline" className="w-full sm:w-auto">Login</Button>
+                <>
+                  <Link href="/login">
+                    <Button variant="outline">Login</Button>
                   </Link>
-                  <Link href="/register" className="w-full sm:w-auto">
-                    <Button className="w-full sm:w-auto">Sign Up</Button>
+                  <Link href="/register">
+                    <Button>Sign Up</Button>
                   </Link>
-                </div>
+                </>
               )}
             </nav>
+
+            {/* Mobile Navigation */}
+            <MobileMenu title="Menu">
+              {user ? (
+                <>
+                  <div className="text-sm text-gray-600 pb-4 border-b">
+                    Welcome, {user.email}
+                  </div>
+                  <Link href="/dashboard" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      My Recipes
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => supabase.auth.signOut()}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/register" className="block">
+                    <Button className="w-full justify-start">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </MobileMenu>
           </div>
         </div>
       </header>

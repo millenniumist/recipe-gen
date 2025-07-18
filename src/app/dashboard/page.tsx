@@ -10,6 +10,7 @@ import { Recipe } from '@/types'
 import RecipeCard from '@/components/recipe/recipe-card'
 import { ChefHat, Plus, LogOut, X, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
+import { MobileMenu } from '@/components/ui/mobile-menu'
 
 export const dynamic = 'force-dynamic'
 
@@ -94,25 +95,46 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <ChefHat className="h-8 w-8 text-orange-600" />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Recipe Generator</h1>
             </Link>
-            <nav className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <span className="text-sm text-gray-600 text-center sm:text-left truncate max-w-[200px]">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-4">
+              <span className="text-sm text-gray-600 truncate max-w-[200px]">
                 Welcome, {user?.email}
               </span>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Link href="/" className="w-full sm:w-auto">
-                  <Button variant="outline" className="w-full sm:w-auto">Generate New Recipe</Button>
-                </Link>
-                <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
+              <Link href="/">
+                <Button variant="outline">Generate New Recipe</Button>
+              </Link>
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
             </nav>
+
+            {/* Mobile Navigation */}
+            <MobileMenu title="Menu">
+              <div className="text-sm text-gray-600 pb-4 border-b">
+                Welcome, {user?.email}
+              </div>
+              <Link href="/" className="block">
+                <Button variant="outline" className="w-full justify-start">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Generate New Recipe
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </MobileMenu>
           </div>
         </div>
       </header>
@@ -157,7 +179,7 @@ export default function DashboardPage() {
       {/* Recipe Detail Modal */}
       {selectedRecipe && (
         <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
-          <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[100vw] sm:max-w-[95vw] md:max-w-4xl max-h-[100vh] sm:max-h-[90vh] overflow-y-auto m-0 sm:m-6 rounded-none sm:rounded-lg">
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-2xl pr-8">{selectedRecipe.title}</DialogTitle>
             </DialogHeader>
