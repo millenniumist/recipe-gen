@@ -93,21 +93,27 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <ChefHat className="h-8 w-8 text-orange-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Recipe Generator</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
-            <Link href="/">
-              <Button variant="outline">Generate New Recipe</Button>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <ChefHat className="h-8 w-8 text-orange-600" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Recipe Generator</h1>
             </Link>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </nav>
+            <nav className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <span className="text-sm text-gray-600 text-center sm:text-left truncate max-w-[200px]">
+                Welcome, {user?.email}
+              </span>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Link href="/" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto">Generate New Recipe</Button>
+                </Link>
+                <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -151,12 +157,12 @@ export default function DashboardPage() {
       {/* Recipe Detail Modal */}
       {selectedRecipe && (
         <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">{selectedRecipe.title}</DialogTitle>
+              <DialogTitle className="text-lg sm:text-2xl pr-8">{selectedRecipe.title}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6 pt-4">
-              <div className="flex items-center space-x-6 text-sm text-gray-600">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-600">
                 {selectedRecipe.cooking_time && (
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4" />
