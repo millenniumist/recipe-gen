@@ -1,0 +1,183 @@
+
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChefHat, Utensils, Clock } from "lucide-react";
+import Link from "next/link";
+import { supabase } from '@/lib/supabase/client'
+import { GeneratedRecipe } from '@/types'
+import RecipeForm from '@/components/forms/recipe-form'
+import RecipeDisplay from '@/components/recipe/recipe-display'
+
+export default function Home() {
+  const [user, setUser] = useState<any>(null)
+  const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipe | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+    getUser()
+  }, [])
+
+  const handleRecipeGenerated = (recipe: GeneratedRecipe) => {
+    setGeneratedRecipe(recipe)
+  }
+
+  const handleSaveRecipe = async (recipe: GeneratedRecipe) => {
+    try {
+      const response = await fetch('/api/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: recipe.title,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions.join('\n'),
+          cooking_time: parseInt(recipe.cookingTime.replace(/\D/g, '')),
+          servings: recipe.servings,
+          dietary_tags: []
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save recipe')
+      }
+    } catch (error) {
+      console.error('Error saving recipe:', error)
+      throw error
+    }
+  }
+
+  const handleNewRecipe = () => {
+    setGeneratedRecipe(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+        <ChefHat className="h-16 w-16 text-orange-600 animate-pulse" />
+      </div>
+    )
+  }
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <ChefHat className="h-8 w-8 text-orange-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Recipe Generator</h1>
+          </div>
+          <nav className="flex items-center space-x-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">Welcome, {user.email}</span>
+                <Link href="/dashboard">
+                  <Button variant="outline">My Recipes</Button>
+                </Link>
+                <Button variant="outline" onClick={() => supabase.auth.signOut()}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link href="/register">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <section className="container mx-auto px-4 py-16">
+        {!generatedRecipe ? (
+          <>
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                AI-Powered Recipe Creation
+              </h2>
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Transform your ingredients into delicious recipes with the power of AI. 
+                Just tell us what you have, and we'll create amazing recipes for you!
+              </p>
+            </div>
+            
+            <RecipeForm onRecipeGenerated={handleRecipeGenerated} />
+          </>
+        ) : (
+          <div className="space-y-8">
+            <div className="text-center">
+              <Button onClick={handleNewRecipe} variant="outline">
+                Generate Another Recipe
+              </Button>
+            </div>
+            
+            <RecipeDisplay
+              recipe={generatedRecipe}
+              onSave={user ? handleSaveRecipe : undefined}
+              isLoggedIn={!!user}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* Features Section */}
+      {!generatedRecipe && (
+        <section className="container mx-auto px-4 py-16">
+          <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Why Choose Our Recipe Generator?
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <ChefHat className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                <h4 className="text-xl font-semibold mb-2">AI-Powered</h4>
+                <p className="text-gray-600">
+                  Advanced AI creates unique recipes tailored to your ingredients and preferences
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                <h4 className="text-xl font-semibold mb-2">Quick & Easy</h4>
+                <p className="text-gray-600">
+                  Get delicious recipes in seconds with clear instructions and cooking times
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <Utensils className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                <h4 className="text-xl font-semibold mb-2">Save Favorites</h4>
+                <p className="text-gray-600">
+                  Create an account to save your favorite recipes and access them anytime
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; 2024 Recipe Generator. Made with ❤️ and AI.</p>
+        </div>
+      </footer>
+    </main>
+  );
+}
