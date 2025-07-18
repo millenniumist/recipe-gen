@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 const apiKey = process.env.GEMINI_API_KEY || 'placeholder-key'
 const genAI = new GoogleGenerativeAI(apiKey)
 
-export const geminiModel = genAI.getGenerativeModel({ model: 'gemini-pro' })
+export const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
 
 export async function generateRecipe(ingredients: string[], dietaryPreferences?: string, servings?: number) {
   const prompt = `
