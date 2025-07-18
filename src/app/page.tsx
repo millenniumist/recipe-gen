@@ -81,45 +81,51 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <ChefHat className="h-8 w-8 text-orange-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Recipe Generator</h1>
-          </Link>
-          <nav className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <span className="text-sm text-gray-600">Welcome, {user.email}</span>
-                <Link href="/dashboard">
-                  <Button variant="outline">My Recipes</Button>
-                </Link>
-                <Button variant="outline" onClick={() => supabase.auth.signOut()}>
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="outline">Login</Button>
-                </Link>
-                <Link href="/register">
-                  <Button>Sign Up</Button>
-                </Link>
-              </>
-            )}
-          </nav>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <ChefHat className="h-8 w-8 text-orange-600" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Recipe Generator</h1>
+            </Link>
+            <nav className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              {user ? (
+                <>
+                  <span className="text-sm text-gray-600 text-center sm:text-left truncate max-w-[200px]">
+                    Welcome, {user.email}
+                  </span>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Link href="/dashboard" className="w-full sm:w-auto">
+                      <Button variant="outline" className="w-full sm:w-auto">My Recipes</Button>
+                    </Link>
+                    <Button variant="outline" onClick={() => supabase.auth.signOut()} className="w-full sm:w-auto">
+                      Sign Out
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <Link href="/login" className="w-full sm:w-auto">
+                    <Button variant="outline" className="w-full sm:w-auto">Login</Button>
+                  </Link>
+                  <Link href="/register" className="w-full sm:w-auto">
+                    <Button className="w-full sm:w-auto">Sign Up</Button>
+                  </Link>
+                </div>
+              )}
+            </nav>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-8 sm:py-16">
         {!generatedRecipe ? (
           <>
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                 AI-Powered Recipe Creation
               </h2>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto px-4">
                 Transform your ingredients into delicious recipes with the power of AI. 
                 Just tell us what you have, and we'll create amazing recipes for you!
               </p>
@@ -128,9 +134,9 @@ export default function Home() {
             <RecipeForm onRecipeGenerated={handleRecipeGenerated} />
           </>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <div className="text-center">
-              <Button onClick={handleNewRecipe} variant="outline">
+              <Button onClick={handleNewRecipe} variant="outline" className="w-full sm:w-auto">
                 Generate Another Recipe
               </Button>
             </div>
@@ -146,16 +152,16 @@ export default function Home() {
 
       {/* Features Section */}
       {!generatedRecipe && (
-        <section className="container mx-auto px-4 py-16">
-          <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">
+        <section className="container mx-auto px-4 py-8 sm:py-16">
+          <h3 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">
             Why Choose Our Recipe Generator?
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <Card className="text-center">
               <CardContent className="pt-6">
                 <ChefHat className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                <h4 className="text-xl font-semibold mb-2">AI-Powered</h4>
-                <p className="text-gray-600">
+                <h4 className="text-lg sm:text-xl font-semibold mb-2">AI-Powered</h4>
+                <p className="text-gray-600 text-sm sm:text-base">
                   Advanced AI creates unique recipes tailored to your ingredients and preferences
                 </p>
               </CardContent>
@@ -163,17 +169,17 @@ export default function Home() {
             <Card className="text-center">
               <CardContent className="pt-6">
                 <Clock className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                <h4 className="text-xl font-semibold mb-2">Quick & Easy</h4>
-                <p className="text-gray-600">
+                <h4 className="text-lg sm:text-xl font-semibold mb-2">Quick & Easy</h4>
+                <p className="text-gray-600 text-sm sm:text-base">
                   Get delicious recipes in seconds with clear instructions and cooking times
                 </p>
               </CardContent>
             </Card>
-            <Card className="text-center">
+            <Card className="text-center sm:col-span-2 lg:col-span-1">
               <CardContent className="pt-6">
                 <Utensils className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                <h4 className="text-xl font-semibold mb-2">Save Favorites</h4>
-                <p className="text-gray-600">
+                <h4 className="text-lg sm:text-xl font-semibold mb-2">Save Favorites</h4>
+                <p className="text-gray-600 text-sm sm:text-base">
                   Create an account to save your favorite recipes and access them anytime
                 </p>
               </CardContent>

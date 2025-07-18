@@ -77,7 +77,7 @@ export default function RecipeForm({ onRecipeGenerated }: RecipeFormProps) {
               {error}
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="ingredients">Ingredients *</Label>
               <Textarea
@@ -90,14 +90,16 @@ export default function RecipeForm({ onRecipeGenerated }: RecipeFormProps) {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="dietary">Dietary Preferences</Label>
-              <Input
-                id="dietary"
-                placeholder="e.g., vegetarian, gluten-free, keto..."
-                value={dietaryPreferences}
-                onChange={(e) => setDietaryPreferences(e.target.value)}
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="dietary">Dietary Preferences</Label>
+                <Input
+                  id="dietary"
+                  placeholder="e.g., vegetarian, gluten-free, keto..."
+                  value={dietaryPreferences}
+                  onChange={(e) => setDietaryPreferences(e.target.value)}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="servings">Servings</Label>
                 <Input
