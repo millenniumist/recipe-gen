@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { supabase } from '@/lib/supabase/client'
+import { getCallbackUrl } from '@/lib/utils/url'
 import { ChefHat } from 'lucide-react'
 
 export default function LoginPage() {
@@ -60,7 +61,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || location.origin}/auth/callback`,
+          redirectTo: getCallbackUrl(),
         },
       })
       if (error) {
