@@ -28,45 +28,54 @@ function AuthCallbackContent() {
           return
         }
 
-        // Check for auth code
-        const code = searchParams.get('code')
-        if (!code) {
-          console.error('No code parameter found')
-          setError('No authorization code received')
-          return
-        }
-
-        console.log('Authorization code received:', code)
-
-        // Handle the OAuth callback with Supabase
-        const { data, error: authError } = await supabase.auth.getSession()
-        
-        console.log('Session data:', data)
-        console.log('Session error:', authError)
-
-        if (authError) {
-          console.error('Auth error:', authError)
-          setError(`Authentication failed: ${authError.message}`)
-          return
-        }
-
-        if (data.session) {
-          console.log('Session established successfully!')
-          console.log('User:', data.session.user)
+        // Listen for auth state changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('Auth state change:', event, session)
           
-          // Redirect to dashboard
+          if (event === 'SIGNED_IN' && session) {
+            console.log('User signed in successfully!', session.user)
+            subscription.unsubscribe()
+            router.push('/dashboard')
+          } else if (event === 'SIGNED_OUT') {
+            console.log('User signed out')
+          }
+        })
+
+        // Also check current session immediately
+        const { data, error: authError } = await supabase.auth.getSession()
+        console.log('Initial session check:', data, authError)
+        
+        if (data.session) {
+          console.log('Session already exists, redirecting...')
+          subscription.unsubscribe()
           router.push('/dashboard')
-        } else {
-          console.error('No session found after OAuth callback')
-          setError('Failed to establish session')
+          return
         }
+
+        // If no immediate session, wait for auth state change or timeout
+        setTimeout(() => {
+          const currentSessionCheck = async () => {
+            const { data: currentData } = await supabase.auth.getSession()
+            if (!currentData.session) {
+              console.error('No session established within timeout period')
+              subscription.unsubscribe()
+              setError('Authentication timeout - no session established')
+            }
+          }
+          currentSessionCheck()
+        }, 10000) // 10 second timeout
+
+        // Cleanup function
+        return () => {
+          subscription.unsubscribe()
+        }
+        
       } catch (err) {
         console.error('Exception in OAuth callback:', err)
         setError(`Unexpected error: ${String(err)}`)
       }
     }
 
-    // Run the callback handler
     handleCallback()
   }, [router, searchParams])
 
