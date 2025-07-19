@@ -28,7 +28,17 @@ function AuthCallbackContent() {
           return
         }
 
-        // Listen for auth state changes
+        // Check if we have an authorization code
+        const code = searchParams.get('code')
+        if (!code) {
+          console.error('No authorization code found in URL')
+          setError('No authorization code received from OAuth provider')
+          return
+        }
+
+        console.log('Processing authorization code:', code)
+
+        // Set up auth state listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
           console.log('Auth state change:', event, session)
           
@@ -41,29 +51,61 @@ function AuthCallbackContent() {
           }
         })
 
-        // Also check current session immediately
-        const { data, error: authError } = await supabase.auth.getSession()
-        console.log('Initial session check:', data, authError)
+        // Try to exchange the authorization code for a session
+        console.log('Attempting to exchange code for session...')
         
-        if (data.session) {
-          console.log('Session already exists, redirecting...')
+        // Use the current URL (which contains the code) for session exchange
+        const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+        
+        console.log('Exchange code result:', exchangeData, exchangeError)
+
+        if (exchangeData.session) {
+          console.log('Session established via code exchange!', exchangeData.session.user)
+          subscription.unsubscribe()
+          router.push('/dashboard')
+          return
+        } else if (exchangeError) {
+          console.error('Error exchanging code for session:', exchangeError)
+          setError(`Failed to exchange authorization code: ${exchangeError.message}`)
+          return
+        }
+
+        // Alternative: Try getting session from URL hash/query
+        console.log('Trying to get session from URL...')
+        
+        // Check if there's a session in the current state
+        const { data: currentSession } = await supabase.auth.getSession()
+        console.log('Current session check:', currentSession)
+        
+        if (currentSession.session) {
+          console.log('Found existing session!')
           subscription.unsubscribe()
           router.push('/dashboard')
           return
         }
 
-        // If no immediate session, wait for auth state change or timeout
-        setTimeout(() => {
-          const currentSessionCheck = async () => {
-            const { data: currentData } = await supabase.auth.getSession()
-            if (!currentData.session) {
-              console.error('No session established within timeout period')
-              subscription.unsubscribe()
-              setError('Authentication timeout - no session established')
-            }
+        // Wait a bit for any async auth processing
+        console.log('Waiting for auth processing...')
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Final session check
+        const { data: finalSession } = await supabase.auth.getSession()
+        if (finalSession.session) {
+          console.log('Session found after waiting!')
+          subscription.unsubscribe()
+          router.push('/dashboard')
+          return
+        }
+
+        // If still no session after all attempts, set timeout
+        setTimeout(async () => {
+          const { data: timeoutSession } = await supabase.auth.getSession()
+          if (!timeoutSession.session) {
+            console.error('No session established within timeout period')
+            subscription.unsubscribe()
+            setError('Authentication timeout - failed to establish session. Please try signing in again.')
           }
-          currentSessionCheck()
-        }, 10000) // 10 second timeout
+        }, 8000) // 8 more seconds
 
         // Cleanup function
         return () => {
